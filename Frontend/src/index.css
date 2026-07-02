@@ -1,0 +1,328 @@
+/* ─── Step 1: Fonts ─────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Step 1: CSS Design Tokens ─────────────────────────────────────────── */
+:root {
+  /* Palette */
+  --color-blue:       #3B82F6;
+  --color-blue-dark:  #2563EB;
+  --color-blue-light: #60A5FA;
+  --color-cyan:       #06B6D4;
+  --color-cyan-light: #38BDF8;
+  --color-purple:     #8B5CF6;
+  --color-purple-dark:#7C3AED;
+  --color-emerald:    #10B981;
+  --color-pink:       #EC4899;
+
+  /* Surface / background */
+  --bg-base:          #0B1120;
+  --bg-surface-1:     #0F172A;
+  --bg-surface-2:     #1E293B;
+  --bg-surface-3:     #334155;
+  --bg-light:         #F8FAFC;
+
+  /* Glass tokens */
+  --glass-bg:         rgba(255,255,255,0.06);
+  --glass-bg-medium:  rgba(255,255,255,0.10);
+  --glass-border:     rgba(255,255,255,0.11);
+  --glass-border-med: rgba(255,255,255,0.18);
+  --glass-blur:       blur(14px);
+  --glass-blur-heavy: blur(24px);
+  --glass-radius:     20px;
+  --glass-radius-lg:  28px;
+
+  /* Shadow tokens */
+  --shadow-card:        0 4px 24px rgba(0,0,0,0.35);
+  --shadow-card-hover:  0 8px 40px rgba(0,0,0,0.50);
+  --shadow-panel:       0 24px 80px rgba(0,0,0,0.60);
+  --shadow-glow-blue:   0 0 20px rgba(59,130,246,0.45), 0 0 40px rgba(59,130,246,0.20);
+  --shadow-glow-cyan:   0 0 20px rgba(6,182,212,0.45),  0 0 40px rgba(6,182,212,0.20);
+  --shadow-glow-purple: 0 0 20px rgba(139,92,246,0.45), 0 0 40px rgba(139,92,246,0.20);
+  --shadow-glow-emerald:0 0 20px rgba(16,185,129,0.45), 0 0 40px rgba(16,185,129,0.20);
+
+  /* Typography */
+  --font-sans:    'Inter', system-ui, sans-serif;
+  --font-display: 'Poppins', 'Inter', sans-serif;
+}
+
+/* ─── Base reset & dark theme ────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html  { scroll-behavior: smooth; font-size: 16px; }
+body  {
+  font-family: var(--font-sans);
+  background: var(--bg-base);
+  color: #fff;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar       { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-surface-1); }
+::-webkit-scrollbar-thumb { background: var(--color-blue); border-radius: 3px; }
+
+/* Autofill override */
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px rgba(11,17,32,0.97) inset !important;
+  -webkit-text-fill-color: #fff !important;
+  caret-color: #fff;
+  transition: background-color 9999s;
+}
+
+/* ─── Glass component tokens ─────────────────────────────────────────────── */
+
+/* Base glass – dark panels, cards */
+.glass {
+  background:             var(--glass-bg);
+  backdrop-filter:        var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+  border:                 1px solid var(--glass-border);
+  border-radius:          var(--glass-radius);
+  box-shadow:             var(--shadow-card);
+}
+
+/* Medium glass – modals, overlays */
+.glass-md {
+  background:             var(--glass-bg-medium);
+  backdrop-filter:        var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+  border:                 1px solid var(--glass-border-med);
+  border-radius:          var(--glass-radius);
+  box-shadow:             var(--shadow-card);
+}
+
+/* Heavy glass – login panel, drawers */
+.glass-heavy {
+  background:             rgba(11,17,32,0.94);
+  backdrop-filter:        var(--glass-blur-heavy);
+  -webkit-backdrop-filter:var(--glass-blur-heavy);
+  border:                 1px solid var(--glass-border);
+  border-radius:          var(--glass-radius-lg);
+  box-shadow:             var(--shadow-panel);
+}
+
+/* Light glass – dashboard cards on light bg */
+.glass-light {
+  background:             rgba(255,255,255,0.70);
+  backdrop-filter:        var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+  border:                 1px solid rgba(255,255,255,0.30);
+  border-radius:          var(--glass-radius);
+  box-shadow:             var(--shadow-card);
+}
+
+/* Legacy aliases used throughout existing pages */
+.glass-card    { @apply glass; }
+.glass-dark    { @apply glass; }
+
+/* ─── Input glass ────────────────────────────────────────────────────────── */
+.input-glass {
+  background:    rgba(255,255,255,0.07);
+  border:        1px solid rgba(255,255,255,0.13);
+  color:         #fff;
+  border-radius: 12px;
+  padding:       13px 16px;
+  width:         100%;
+  outline:       none;
+  font-family:   var(--font-sans);
+  font-size:     14px;
+  transition:    box-shadow 0.3s, border-color 0.3s;
+}
+.input-glass::placeholder { color: rgba(255,255,255,0.35); }
+.input-glass:focus {
+  border-color: rgba(59,130,246,0.65);
+  box-shadow:   0 0 0 3px rgba(59,130,246,0.18), 0 0 20px rgba(59,130,246,0.30);
+}
+
+/* ─── Button tokens ──────────────────────────────────────────────────────── */
+.btn-blue {
+  background:    linear-gradient(135deg, var(--color-blue), var(--color-cyan));
+  color:         #fff;
+  border:        none;
+  border-radius: 10px;
+  padding:       10px 22px;
+  font-family:   var(--font-display);
+  font-weight:   600;
+  font-size:     14px;
+  cursor:        pointer;
+  box-shadow:    0 4px 14px rgba(59,130,246,0.35);
+  transition:    transform 0.2s, box-shadow 0.2s;
+}
+.btn-blue:hover {
+  transform:  translateY(-3px);
+  box-shadow: 0 8px 24px rgba(59,130,246,0.55);
+}
+
+.btn-purple {
+  background:    linear-gradient(135deg, var(--color-purple), var(--color-pink));
+  color:         #fff;
+  border:        none;
+  border-radius: 10px;
+  padding:       10px 22px;
+  font-family:   var(--font-display);
+  font-weight:   700;
+  font-size:     14px;
+  cursor:        pointer;
+  box-shadow:    0 4px 14px rgba(139,92,246,0.35);
+  transition:    transform 0.2s, box-shadow 0.2s;
+}
+.btn-purple:hover {
+  transform:  scale(1.06);
+  box-shadow: 0 8px 24px rgba(236,72,153,0.5);
+}
+
+/* Legacy alias */
+.btn-royal {
+  background:    linear-gradient(90deg, var(--color-blue-dark), var(--color-blue), var(--color-blue-light));
+  color:         #fff;
+  border:        none;
+  border-radius: 12px;
+  padding:       13px 28px;
+  font-family:   var(--font-sans);
+  font-weight:   600;
+  font-size:     15px;
+  cursor:        pointer;
+  position:      relative;
+  overflow:      hidden;
+  transition:    transform 0.2s, box-shadow 0.2s;
+}
+.btn-royal:hover  { transform: translateY(-2px); box-shadow: var(--shadow-glow-blue); }
+.btn-royal:active { transform: translateY(0); }
+
+.btn-outline {
+  background:    transparent;
+  color:         #fff;
+  border:        1.5px solid rgba(255,255,255,0.25);
+  border-radius: 12px;
+  padding:       10px 22px;
+  font-family:   var(--font-sans);
+  font-weight:   600;
+  font-size:     14px;
+  cursor:        pointer;
+  transition:    border-color 0.2s, background 0.2s, transform 0.2s;
+}
+.btn-outline:hover {
+  border-color: var(--color-cyan-light);
+  background:   rgba(56,189,248,0.08);
+  transform:    translateY(-2px);
+}
+
+/* ─── Typography helpers ─────────────────────────────────────────────────── */
+.font-display { font-family: var(--font-display); }
+
+.text-gradient {
+  background:               linear-gradient(135deg, #38BDF8, #60A5FA, #A78BFA);
+  -webkit-background-clip:  text;
+  -webkit-text-fill-color:  transparent;
+  background-clip:          text;
+}
+.text-gradient-blue-cyan {
+  background:               linear-gradient(135deg, var(--color-blue), var(--color-cyan));
+  -webkit-background-clip:  text;
+  -webkit-text-fill-color:  transparent;
+  background-clip:          text;
+}
+.text-gradient-purple {
+  background:               linear-gradient(135deg, var(--color-purple), var(--color-pink));
+  -webkit-background-clip:  text;
+  -webkit-text-fill-color:  transparent;
+  background-clip:          text;
+}
+
+.neon-text {
+  text-shadow: 0 0 18px rgba(56,189,248,0.8), 0 0 36px rgba(37,99,235,0.4);
+}
+
+/* ─── Glow utilities ─────────────────────────────────────────────────────── */
+.glow-blue   { box-shadow: var(--shadow-glow-blue); }
+.glow-cyan   { box-shadow: var(--shadow-glow-cyan); }
+.glow-purple { box-shadow: var(--shadow-glow-purple); }
+.glow-emerald{ box-shadow: var(--shadow-glow-emerald); }
+
+/* ─── Animated gradient background ──────────────────────────────────────── */
+.bg-animated {
+  background: linear-gradient(270deg, var(--bg-base), #172554, #1E3A8A, var(--color-blue), var(--color-purple));
+  background-size: 300% 300%;
+  animation: gradientX 12s ease infinite;
+}
+@keyframes gradientX {
+  0%,100% { background-position: 0% 50%; }
+  50%     { background-position: 100% 50%; }
+}
+
+/* ─── Motion helpers ─────────────────────────────────────────────────────── */
+.animate-float      { animation: float 6s ease-in-out infinite; }
+.animate-float-slow { animation: floatSlow 9s ease-in-out infinite; }
+.animate-pulse-glow { animation: pulseGlow 2.5s ease-in-out infinite; }
+.animate-zoom-bg    { animation: zoomBg 20s ease-in-out infinite alternate; }
+
+@keyframes float      { 0%,100%{ transform:translateY(0) }   50%{ transform:translateY(-18px) } }
+@keyframes floatSlow  { 0%,100%{ transform:translateY(0) }   50%{ transform:translateY(-12px) } }
+@keyframes pulseGlow  { 0%,100%{ box-shadow:0 0 14px rgba(59,130,246,0.4) } 50%{ box-shadow:0 0 34px rgba(6,182,212,0.7) } }
+@keyframes zoomBg     { 0%{ transform:scale(1) } 100%{ transform:scale(1.08) } }
+
+/* ─── Particle / ray ─────────────────────────────────────────────────────── */
+.light-ray {
+  position:         absolute;
+  width:            2px;
+  background:       linear-gradient(to bottom, transparent, rgba(56,189,248,0.15), transparent);
+  transform-origin: top center;
+  animation:        rayMove 8s ease-in-out infinite;
+}
+@keyframes rayMove {
+  0%,100% { opacity:0.3; transform:rotate(-5deg) scaleY(1); }
+  50%     { opacity:0.7; transform:rotate(5deg)  scaleY(1.2); }
+}
+
+/* ─── UI micro-tokens ────────────────────────────────────────────────────── */
+.progress-bar {
+  background:    linear-gradient(90deg, var(--color-blue), var(--color-cyan-light));
+  border-radius: 9999px;
+  transition:    width 0.4s ease;
+}
+
+.ripple {
+  position:      absolute;
+  border-radius: 50%;
+  background:    rgba(255,255,255,0.28);
+  animation:     rippleAnim 0.6s linear;
+  pointer-events:none;
+}
+@keyframes rippleAnim { to { transform:scale(4); opacity:0; } }
+
+.scan-line {
+  position:   absolute;
+  left: 8%; right: 8%;
+  height:     2px;
+  background: linear-gradient(90deg, transparent, #38BDF8, transparent);
+  animation:  scanLine 2s ease-in-out infinite alternate;
+  box-shadow: 0 0 10px #38BDF8;
+}
+@keyframes scanLine { 0%{ top:5%; opacity:1 } 100%{ top:92%; opacity:0.3 } }
+
+.spinner {
+  display:       inline-block;
+  width:         17px; height: 17px;
+  border:        2px solid rgba(255,255,255,0.22);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation:     spin 0.65s linear infinite;
+  vertical-align:middle;
+  flex-shrink:   0;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.kpi-card           { transition: transform 0.25s, box-shadow 0.25s; cursor: pointer; }
+.kpi-card:hover     { transform: scale(1.05); }
+
+.field-error        { display:block; font-size:11.5px; color:#fca5a5; margin-top:5px; }
+
+/* ─── Dark mode dashboard ────────────────────────────────────────────────── */
+.dashboard-bg       { background: var(--bg-light); color: var(--bg-base); }
+.dark .dashboard-bg { background: var(--bg-base);  color: #fff; }

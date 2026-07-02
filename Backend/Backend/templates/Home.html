@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    /* Background orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.3;
+      pointer-events: none;
+      animation: float 8s ease-in-out infinite;
+    }
+    .orb1 { width: 500px; height: 500px; background: #6c63ff; top: -150px; left: -150px; }
+    .orb2 { width: 400px; height: 400px; background: #00d2ff; bottom: -100px; right: -100px; animation-delay: 3s; }
+    .orb3 { width: 350px; height: 350px; background: #a855f7; top: 40%; left: 30%; animation-delay: 1.5s; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-30px); }
+    }
+
+    /* Main card */
+    .card {
+      position: relative;
+      z-index: 10;
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px;
+      padding: 50px 44px;
+      width: 90%;
+      max-width: 680px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+      animation: fadeUp 0.7s ease forwards;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Success badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #6c63ff, #00d2ff);
+      border-radius: 50px;
+      padding: 6px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      margin-bottom: 28px;
+    }
+
+    /* Avatar row */
+    .user-header {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+    .avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6c63ff, #00d2ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 800;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 4px rgba(108,99,255,0.3);
+    }
+    .user-header h2 { font-size: 22px; font-weight: 700; color: #fff; }
+    .user-header p  { font-size: 13px; color: rgba(255,255,255,0.45); margin-top: 3px; }
+
+    /* User details grid */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+    @media (max-width: 500px) { .info-grid { grid-template-columns: 1fr; } }
+
+    .info-item {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      padding: 16px 18px;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .info-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 28px rgba(108,99,255,0.2);
+    }
+    .info-item .info-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 6px;
+    }
+    .info-item .info-value {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      word-break: break-all;
+    }
+    .info-item .info-icon {
+      font-size: 20px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    /* Security badges */
+    .security-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+    .sec-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16,185,129,0.12);
+      border: 1px solid rgba(16,185,129,0.25);
+      border-radius: 50px;
+      padding: 6px 14px;
+      font-size: 12px;
+      color: #6ee7b7;
+      font-weight: 600;
+    }
+
+    /* Logout button */
+    .btn-logout {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 36px;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(239,68,68,0.35);
+    }
+    .btn-logout:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 28px rgba(239,68,68,0.5);
+    }
+
+    h1 {
+      font-size: clamp(22px, 4vw, 34px);
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff, #a5b4fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <div class="card">
+
+    <div><span class="badge">🎉 Login Successful</span></div>
+
+    <!-- Avatar + name — populated from DB data stored in localStorage -->
+    <div class="user-header">
+      <div class="avatar" id="avatar">U</div>
+      <div>
+        <h2 id="username-display">User</h2>
+        <p id="user-role">Authenticated Member</p>
+      </div>
+    </div>
+
+    <h1>Your Dashboard</h1>
+    <p class="subtitle">
+      You are securely signed in. All data below was retrieved from the Django database.
+    </p>
+
+    <!-- Full DB user info grid -->
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-icon">👤</span>
+        <div class="info-label">Username</div>
+        <div class="info-value" id="db-username">—</div>
+      </div>
+      <div class="info-item">
+        <span class="info-icon">📧</span>
+        <div class="info-label">Email Address</div>
+        <div class="info-value" id="db-email">—</div>
+      </div>
+      <div class="info-item">
+        <span class="info-icon">📱</span>
+        <div class="info-label">Phone Number</div>
+        <div class="info-value" id="db-phone">—</div>
+      </div>
+      <div class="info-item">
+        <span class="info-icon">📅</span>
+        <div class="info-label">Registered On</div>
+        <div class="info-value" id="db-registered">—</div>
+      </div>
+    </div>
+
+    <!-- Security indicators -->
+    <div class="security-row">
+      <span class="sec-badge">✓ JWT Authenticated</span>
+      <span class="sec-badge">✓ Password Hashed (PBKDF2)</span>
+      <span class="sec-badge">✓ Secure Session</span>
+    </div>
+
+    <!-- Logout -->
+    <a href="http://localhost:5173/login" class="btn-logout" onclick="event.preventDefault(); logout(); window.location.href='http://localhost:5173/login';">
+      🚪 Logout
+    </a>
+
+  </div>
+
+  <script>
+    // All values come from the DB response stored by React after login
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    if (user.username) {
+      document.getElementById('avatar').textContent          = user.username[0].toUpperCase();
+      document.getElementById('username-display').textContent = user.username;
+      document.getElementById('db-username').textContent     = user.username;
+    }
+    if (user.email)         document.getElementById('db-email').textContent      = user.email;
+    if (user.phone)         document.getElementById('db-phone').textContent      = user.phone;
+    if (user.registered_at) document.getElementById('db-registered').textContent = user.registered_at;
+
+    function logout() {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+    }
+  </script>
+
+</body>
+</html>
