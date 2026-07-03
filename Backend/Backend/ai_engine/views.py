@@ -63,10 +63,30 @@ def _parse_file(file) -> tuple[pd.DataFrame, str]:
     if df.empty:
         raise ValueError('The uploaded file contains no data.')
 
+    # Pre-compute value counts for all columns so AI can read exact numbers
+    value_counts_parts = []
+    for col in df.columns:
+        vc = df[col].value_counts()
+        # Show all unique values for columns with <= 50 unique values, top 50 otherwise
+        if len(vc) <= 50:
+            vc_str = vc.to_string()
+        else:
+            vc_str = f'(Showing top 50 of {len(vc)} unique values)\n' + vc.head(50).to_string()
+        value_counts_parts.append(f'Column "{col}" value counts:\n{vc_str}')
+
+    # Include full data as CSV (up to 1000 rows)
+    max_rows = min(df.shape[0], 1000)
+    full_data = df.head(max_rows).to_csv(index=False)
+
     summary = '\n\n'.join([
         f'Columns: {list(df.columns)}',
         f'Shape: {df.shape[0]} rows x {df.shape[1]} columns',
-        f'Sample:\n{df.head(5).to_string(index=False)}',
+        f'Data types:\n{df.dtypes.to_string()}',
+        f'Descriptive stats:\n{df.describe(include="all").to_string()}',
+        '--- VALUE COUNTS (exact counts per column) ---',
+        '\n\n'.join(value_counts_parts),
+        '--- END VALUE COUNTS ---',
+        f'Full data (first {max_rows} rows in CSV format):\n{full_data}',
     ])
     return df, summary
 
@@ -214,11 +234,48 @@ class UploadPreviewView(APIView):
             return Response({'detail': 'Data no longer in memory.'}, status=status.HTTP_410_GONE)
 
         df = store['df']
+
+        # If page_size=0, return ALL rows (no pagination)
+        try:
+            page_size = int(request.query_params.get('page_size', 0))
+        except (ValueError, TypeError):
+            page_size = 0
+
+        total_rows = len(df)
+
+        if page_size <= 0:
+            # Return all rows
+            preview_data = df.to_dict(orient='records')
+            page_info = {
+                'page': 1,
+                'page_size': total_rows,
+                'total_rows': total_rows,
+                'total_pages': 1,
+            }
+        else:
+            try:
+                page = int(request.query_params.get('page', 1))
+            except (ValueError, TypeError):
+                page = 1
+            page_size = min(page_size, 500)
+            total_pages = max(1, -(-total_rows // page_size))
+            page = max(1, min(page, total_pages))
+            start = (page - 1) * page_size
+            end = start + page_size
+            preview_data = df.iloc[start:end].to_dict(orient='records')
+            page_info = {
+                'page': page,
+                'page_size': page_size,
+                'total_rows': total_rows,
+                'total_pages': total_pages,
+            }
+
         return Response({
             'filename': upload.filename,
             'rows':     upload.rows_count,
             'columns':  upload.columns_count,
-            'preview':  df.head(10).to_dict(orient='records'),
+            'preview':  preview_data,
+            'pagination': page_info,
         })
 
 
@@ -281,9 +338,12 @@ class QueryView(APIView):
 
         t0 = time.monotonic()
         try:
-            ai_response = query_ai(store['summary'], prompt)
-        except Exception:
-            return Response({'detail': 'AI service error.'}, status=status.HTTP_502_BAD_GATEWAY)
+            ai_response = query_ai(store['summary'], prompt, df=store['df'])
+
+        except ValueError as e:
+            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'detail': f'AI service error: {str(e)}'}, status=status.HTTP_502_BAD_GATEWAY)
         execution_ms = int((time.monotonic() - t0) * 1000)
 
         qh = QueryHistory.objects.create(

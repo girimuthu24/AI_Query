@@ -37,6 +37,8 @@ export default function UserDashboard() {
   const [uploading, setUploading] = useState(false);
   const [toast, setToast]       = useState(null);
   const [navTab, setNavTab]     = useState('upload');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination]   = useState(null);
 
   const showToast = useCallback((msg, type = 'success') => {
     setToast({ msg, type });
@@ -136,7 +138,7 @@ export default function UserDashboard() {
     try {
       const response = await getUploadPreview(file.sessionId);
       const data = response.data;
-      setActive({ ...file, previewData: data.preview });
+      setActive({ ...file, previewData: data.preview, totalRows: data.pagination?.total_rows || data.preview?.length || 0 });
       setAiResult('');
     } catch (err) {
       const msg = err.response?.data?.detail || 'Failed to load preview';
@@ -252,23 +254,27 @@ export default function UserDashboard() {
                 )}
               </div>
 
-              {/* Data preview */}
+              {/* Data preview - all rows */}
               {active.previewData && active.previewData.length > 0 && (
-                <div style={{ marginBottom: 16, padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)', maxHeight: 200, overflow: 'auto' }}>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Data Preview (first 10 rows)</p>
+                <div style={{ marginBottom: 16, padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)', maxHeight: 500, overflow: 'auto' }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                    All Data — {active.totalRows || active.previewData.length} rows · {Object.keys(active.previewData[0]).length} cols
+                  </p>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
-                    <thead>
+                    <thead style={{ position: 'sticky', top: 0, background: '#131B2E', zIndex: 1 }}>
                       <tr>
+                        <th style={{ padding: '6px 8px', textAlign: 'left', color: 'rgba(255,255,255,0.3)', borderBottom: '1px solid rgba(255,255,255,0.1)', fontWeight: 600, fontSize: 10 }}>#</th>
                         {Object.keys(active.previewData[0]).map(col => (
-                          <th key={col} style={{ padding: '4px 8px', textAlign: 'left', color: '#3B82F6', borderBottom: '1px solid rgba(255,255,255,0.1)', fontWeight: 600 }}>{col}</th>
+                          <th key={col} style={{ padding: '6px 8px', textAlign: 'left', color: '#3B82F6', borderBottom: '1px solid rgba(255,255,255,0.1)', fontWeight: 600 }}>{col}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {active.previewData.map((row, i) => (
-                        <tr key={i}>
+                        <tr key={i} style={{ background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
+                          <td style={{ padding: '3px 8px', color: 'rgba(255,255,255,0.25)', borderBottom: '1px solid rgba(255,255,255,0.04)', fontSize: 10 }}>{i + 1}</td>
                           {Object.values(row).map((val, j) => (
-                            <td key={j} style={{ padding: '3px 8px', color: 'rgba(255,255,255,0.7)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>{val == null ? '—' : String(val).slice(0, 50)}</td>
+                            <td key={j} style={{ padding: '3px 8px', color: 'rgba(255,255,255,0.7)', borderBottom: '1px solid rgba(255,255,255,0.04)', whiteSpace: 'nowrap' }}>{val == null ? '—' : String(val).slice(0, 80)}</td>
                           ))}
                         </tr>
                       ))}

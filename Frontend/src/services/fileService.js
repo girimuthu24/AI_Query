@@ -19,8 +19,8 @@ export const uploadFile = (file) => {
 /**
  * Get a preview of the uploaded data.
  */
-export const getUploadPreview = (sessionId) =>
-  axiosInstance.get(`/ai/upload/preview/?session_id=${sessionId}`);
+export const getUploadPreview = (sessionId, page = 1, pageSize = 0) =>
+  axiosInstance.get(`/ai/upload/preview/?session_id=${sessionId}&page=${page}&page_size=${pageSize}`);
 
 /**
  * Delete/clear an upload session.
@@ -37,4 +37,4 @@ export const runAIQuery = (sessionId, prompt, queryType = 'SEARCH') =>
     session_id: sessionId,
     prompt,
     query_type: queryType,
-  });
+  }, { timeout: 120000 });
